@@ -1,15 +1,11 @@
-# 🧪 煉金藥水鋪：數感調配師 (Alchemy Potion Shop)
-
-![Math Game](https://img.shields.io/badge/教育-數學-orange)
-![Grade](https://img.shields.io/badge/適用對象-國小四年級-blue)
-![Tech](https://img.shields.io/badge/技術-HTML5%20%2F%20JavaScript-green)
+# 🧪 煉金藥水鋪 (Alchemy Potion Shop)
 
 這是一個專為國小四年級學生設計的互動式數學遊戲，旨在透過直觀的煉金情境，強化學生對「分數」與「小數」之間轉換的熟練度與數感。
 
 ## 🌟 遊戲開始
 不用下載任何程式，點擊下方連結即可直接在瀏覽器中開始你的調配冒險：
 
-### 👉 [點擊這裡開始遊戲](你的GitHubPages網址)
+### 👉 [點擊這裡開始遊戲](https://weddy1225-blip.github.io/AI-math04/)
 *(請記得將括號內的文字替換成你在 Settings > Pages 中生成的網址)*
 
 ---
@@ -39,6 +35,3 @@
 
 ## 📜 授權說明
 本專案採開源分享，歡迎教育工作者自行修改或擴充題庫。
-
----
-*由 Gemini 協助開發與設計 - 2026*
