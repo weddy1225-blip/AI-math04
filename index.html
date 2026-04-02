@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 煉金藥水鋪 - 數感調配師</title>
+    <style>
+        :root {
+            --primary-color: #795548;
+            --bg-color: #fff9c4;
+            --card-bg: #ffffff;
+            --accent-color: #ff7043;
+            --hint-color: #8d6e63;
+        }
+
+        body { 
+            font-family: "Microsoft JhengHei", "微軟正黑體", sans-serif; 
+            background-color: var(--bg-color); 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            margin: 0; 
+            color: #3e2723;
+        }
+
+        #game-container { 
+            background: var(--card-bg); 
+            padding: 30px; 
+            border-radius: 30px; 
+            box-shadow: 0 15px 0px #d7ccc8; 
+            width: 90%; 
+            max-width: 600px; 
+            text-align: center;
+            border: 4px solid var(--primary-color);
+        }
+
+        p, label, input, button { font-size: 1.4rem; line-height: 1.6; }
+        h1 { font-size: 2.5rem; color: var(--accent-color); margin-bottom: 10px; }
+        h2 { font-size: 2rem; color: var(--primary-color); }
+
+        .hidden { display: none; }
+
+        .btn { 
+            background-color: var(--accent-color); 
+            color: white; 
+            border: none; 
+            padding: 15px 30px; 
+            border-radius: 50px; 
+            cursor: pointer; 
+            font-weight: bold;
+            transition: transform 0.2s, background-color 0.2s;
+            margin: 10px;
+            box-shadow: 0 5px 0 #d84315;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #d84315; }
+
+        .input-wrapper {
+            margin: 20px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 160px;
+        }
+
+        .fraction-input-group {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .fraction-input-group input {
+            width: 100px;
+            height: 65px;
+            font-size: 2.2rem;
+            text-align: center;
+            border: 3px solid #bcaaa4;
+            border-radius: 12px;
+            margin: 0;
+        }
+
+        .fraction-line {
+            width: 120px;
+            height: 5px;
+            background-color: #3e2723;
+            margin: 8px 0;
+            border-radius: 3px;
+        }
+
+        .single-input {
+            width: 180px;
+            height: 70px;
+            font-size: 2.2rem;
+            text-align: center;
+            border: 3px solid #bcaaa4;
+            border-radius: 15px;
+        }
+
+        .fraction {
+            display: inline-block;
+            vertical-align: middle;
+            margin: 0 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .fraction > span { display: block; padding: 0 5px; }
+        .fraction span.fdn { border-top: 3px solid #3e2723; }
+
+        #feedback { margin-top: 20px; font-size: 1.6rem; min-height: 2.5rem; font-weight: bold; }
+        .review-item { text-align: left; background: #efebe9; padding: 15px; margin: 10px 0; border-radius: 10px; font-size: 1.2rem; }
+        .intro-text { text-align: left; background: #fffde7; padding: 20px; border-radius: 15px; border: 2px dashed #fbc02d; }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <div id="start-screen">
+        <h1>🧪 煉金藥水鋪</h1>
+        <div class="intro-text">
+            <p>🌟 歡迎來到神祕的煉金藥水鋪！</p>
+            <p>你是這裡首席的調配師，每天都要面對各種客人，他們需要的藥水精確度極高，多一滴太濃、少一滴太淡。</p>
+            <p>你的任務是根據客人提供的「分數」或「小數」指令，精準轉換成實驗室量筒上的刻度。</p>
+            <p>✨ 準備好拿起你的量瓶，開始這場邏輯與數字的調配冒險了嗎？讓我們守護藥水鋪的百年名聲吧！</p>
+        </div>
+        <button class="btn" onclick="startGame()">✨ 開始調配冒險！</button>
+    </div>
+
+    <div id="game-screen" class="hidden">
+        <h2 id="stage-title">階段任務</h2>
+        <div id="question-area" style="font-size: 2.4rem; margin: 25px 0;"></div>
+        
+        <div id="answer-zone" class="input-wrapper"></div>
+
+        <div style="display: flex; justify-content: center; gap: 15px;">
+            <button class="btn" style="background-color: var(--hint-color); box-shadow: 0 5px 0 #5d4037;" onclick="showHint()">💡 拿提示</button>
+            <button class="btn" onclick="checkAnswer()">🔮 提交調配</button>
+        </div>
+        
+        <div id="feedback"></div>
+    </div>
+
+    <div id="result-screen" class="hidden">
+        <h2>🏆 調配師結算單</h2>
+        <div id="final-stats" style="font-size: 1.5rem;"></div>
+        <div id="review-list" style="max-height: 300px; overflow-y: auto; margin-bottom: 20px;"></div>
+        <button class="btn" onclick="location.reload()">再玩一次 🔄</button>
+    </div>
+</div>
+
+<script>
+    function formatFraction(text) {
+        if (!text) return "";
+        return text.replace(/(\d+)\/(\d+)/g, '<span class="fraction"><span>$1</span><span class="fdn">$2</span></span>');
+    }
+
+    const questionBank = [
+        // 階段一：一位小數與十分之幾 (10題)
+        [
+            {q:"3/10 公升 = ?", a:"0.3", type:"decimal", h:"10份裡的3份，就是小數點後第一位是3。"},
+            {q:"0.7 公斤 = ?", a:"7/10", type:"fraction", h:"0.7 是 7個0.1，也就是 7/10。"},
+            {q:"9/10 單位 = ?", a:"0.9", type:"decimal", h:"9/10 等於 0.9。"},
+            {q:"0.5 單位 = ?", a:"5/10", type:"fraction", h:"0.5 寫成分數，分母是10。"},
+            {q:"1/10 單位 = ?", a:"0.1", type:"decimal", h:"1/10 就是 0.1。"},
+            {q:"0.4 單位 = ?", a:"4/10", type:"fraction", h:"0.4 是 4個0.1，也就是 4/10。"},
+            {q:"6/10 單位 = ?", a:"0.6", type:"decimal", h:"6/10 等於 0.6。"},
+            {q:"0.8 單位 = ?", a:"8/10", type:"fraction", h:"0.8 就是 8/10。"},
+            {q:"2/10 單位 = ?", a:"0.2", type:"decimal", h:"2/10 等於 0.2。"},
+            {q:"0.1 單位 = ?", a:"1/10", type:"fraction", h:"0.1 就是 1/10。"}
+        ],
+        // 階段二：二位小數與百分之幾 (10題)
+        [
+            {q:"25/100 公升 = ?", a:"0.25", type:"decimal", h:"百分之幾要寫到小數點後第二位。"},
+            {q:"0.08 公斤 = ?", a:"8/100", type:"fraction", h:"小數點後兩位，分母是100。"},
+            {q:"1/2 公升 = ?", a:"0.5", type:"decimal", h:"1/2 等於 5/10，也就是 0.5。"},
+            {q:"0.75 單位 = ?", a:"75/100", type:"fraction", h:"0.75 是 75個0.01。"},
+            {q:"40/100 單位 = ?", a:"0.4", type:"decimal", h:"40/100 也可以說是 0.40 或 0.4。"},
+            {q:"0.01 單位 = ?", a:"1/100", type:"fraction", h:"0.01 就是 1/100。"},
+            {q:"1/4 單位 = ?", a:"0.25", type:"decimal", h:"1/4 等於 25/100，即 0.25。"},
+            {q:"0.15 單位 = ?", a:"15/100", type:"fraction", h:"0.15 就是 15/100。"},
+            {q:"99/100 單位 = ?", a:"0.99", type:"decimal", h:"百分之九十九。"},
+            {q:"0.6 單位 = ?", a:"60/100", type:"fraction", h:"要把 0.6 換成分母是 100 的分數喔！"}
+        ],
+        // 階段三：大師挑戰 (10題)
+        [
+            {q:"現有 0.4，需加到 1.0，還差？", a:"6/10", type:"fraction", h:"1.0 - 0.4 = 0.6，換成分數是？"},
+            {q:"現有 35/100，需加到 1.0，還差？", a:"0.65", type:"decimal", h:"100個0.01扣掉35個，剩多少？"},
+            {q:"0.2 與 0.3 總共是多少？", a:"5/10", type:"fraction", h:"先相加得到 0.5，再換成分數。"},
+            {q:"總共 0.8，已倒 2/10，還差？", a:"0.6", type:"decimal", h:"2/10是0.2，0.8-0.2=？"},
+            {q:"1.0 減去 0.05 是多少？", a:"95/100", type:"fraction", h:"剩 0.95，換成分母為100的分數。"},
+            {q:"現有 0.72，需加到 1.0，還差？", a:"28/100", type:"fraction", h:"1.00 - 0.72 = 0.28。"},
+            {q:"瓶子 1.0，倒了 0.1 和 5/10，剩多少？", a:"0.4", type:"decimal", h:"1.0 - 0.1 - 0.5 = ？"},
+            {q:"50/100 + 0.5 等於多少？", a:"1", type:"decimal", h:"0.5 + 0.5 等於多少？"},
+            {q:"客人要 0.9，你倒了 95/100，多倒多少？", a:"0.05", type:"decimal", h:"0.95 - 0.9 = ？"},
+            {q:"現有 0.33，需加到 1.0，還差？", a:"0.67", type:"decimal", h:"1.00 - 0.33 = ？"}
+        ]
+    ];
+
+    let currentStage = 0, stageQuestionIndex = 0, score = 0, startTime, gameHistory = [], currentQuestions = [];
+
+    function startGame() {
+        document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('game-screen').classList.remove('hidden');
+        startTime = new Date();
+        // 每階段隨機挑選 2 題
+        currentQuestions = questionBank.map(stage => {
+            let shuffled = stage.sort(() => 0.5 - Math.random());
+            return shuffled.slice(0, 2);
+        }).flat();
+        showQuestion();
+    }
+
+    function showQuestion() {
+        const qObj = currentQuestions[currentStage * 2 + stageQuestionIndex];
+        document.getElementById('stage-title').innerText = `✨ 第 ${currentStage + 1} 關：${['新手學徒', '進階高手', '煉金大師'][currentStage]}`;
+        document.getElementById('question-area').innerHTML = formatFraction(qObj.q);
+        document.getElementById('feedback').innerText = "";
+        
+        const answerZone = document.getElementById('answer-zone');
+        if (qObj.type === "fraction") {
+            answerZone.innerHTML = `
+                <div class="fraction-input-group">
+                    <input type="number" id="num-input" placeholder="分子">
+                    <div class="fraction-line"></div>
+                    <input type="number" id="den-input" placeholder="分母">
+                </div>`;
+            document.getElementById('num-input').focus();
+        } else {
+            answerZone.innerHTML = `<input type="text" id="dec-input" class="single-input" placeholder="0.0" autofocus>`;
+            document.getElementById('dec-input').focus();
+        }
+    }
+
+    function checkAnswer() {
+        const qObj = currentQuestions[currentStage * 2 + stageQuestionIndex];
+        let userAns = "";
+        
+        if (qObj.type === "fraction") {
+            const num = document.getElementById('num-input').value;
+            const den = document.getElementById('den-input').value;
+            userAns = (num !== "" && den !== "") ? `${num}/${den}` : "";
+        } else {
+            userAns = document.getElementById('dec-input').value.trim();
+        }
+
+        if (userAns === "") return alert("請先填寫答案喔！");
+
+        const isCorrect = (userAns === qObj.a);
+        if (isCorrect) {
+            score++;
+            document.getElementById('feedback').innerHTML = "<span style='color: #4caf50;'>✅ 太棒了！完美調配！</span>";
+        } else {
+            document.getElementById('feedback').innerHTML = `<span style='color: #f44336;'>❌ 濃度不對... 正解是 ${formatFraction(qObj.a)}</span>`;
+        }
+
+        gameHistory.push({q: qObj.q, a: qObj.a, user: userAns, correct: isCorrect});
+
+        setTimeout(() => {
+            stageQuestionIndex++;
+            if (stageQuestionIndex > 1) { 
+                stageQuestionIndex = 0; 
+                currentStage++; 
+            }
+            if (currentStage > 2) showResult();
+            else showQuestion();
+        }, 1800);
+    }
+
+    function showHint() {
+        alert("🔍 調配小筆記：\n" + currentQuestions[currentStage * 2 + stageQuestionIndex].h);
+    }
+
+    function showResult() {
+        const timeDiff = Math.floor((new Date() - startTime) / 1000);
+        document.getElementById('game-screen').classList.add('hidden');
+        document.getElementById('result-screen').classList.remove('hidden');
+        
+        let title, msg;
+        if (score === 6) { title = "🥇 神級精準大師"; msg = "你的雙眼就是最準的秤，整個森林都為你的技術感到驚嘆！"; }
+        else if (score >= 4) { title = "🥈 皇家首席調配師"; msg = "非常優異！你的調配技術已經是王國中的佼佼者了。"; }
+        else { title = "🥉 藥水鋪資深學徒"; msg = "加油！只要再多練習，你一定能掌握數字間的魔法。"; }
+        
+        document.getElementById('final-stats').innerHTML = `
+            <p style="font-size: 2.2rem; color: #ff7043; margin-top:0;"><strong>${title}</strong></p>
+            <p>🌟 ${msg}</p>
+            <p>📊 總分：${score} / 6 | ⏱️ 用時：${timeDiff} 秒</p><hr>`;
+        
+        let reviewHTML = "<h3 style='text-align:left;'>📝 調配清單回顧：</h3>";
+        gameHistory.forEach((item, i) => {
+            reviewHTML += `<div class="review-item">第 ${i+1} 題：${formatFraction(item.q)}<br>你的答案：${formatFraction(item.user) || '(未填)'} | 正解：${formatFraction(item.a)} ${item.correct ? '✅' : '❌'}</div>`;
+        });
+        document.getElementById('review-list').innerHTML = reviewHTML;
+    }
+</script>
+
+</body>
+</html>
